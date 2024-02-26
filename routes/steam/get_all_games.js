@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const routePath = "/steam/get_all_games"
 
+const apiKey = require("../../util/steamApiKey")
+
 router.get('/', async (req, res) => {
-    const apiKey = process.env.STEAM_API_KEY;
 
     try {
         const response = await fetch(`https://api.steampowered.com/ISteamApps/GetAppList/v2/?key=${apiKey}`);

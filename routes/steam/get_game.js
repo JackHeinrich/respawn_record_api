@@ -15,8 +15,6 @@ router.get('/:gameId', async (req, res) => {
 
     store.apiKey = apiKey;
 
-    console.log(req.params.gameId);
-
     try {
         const data = await store.steam('appDetails', gameId);
         res.json({ gameData: data });
