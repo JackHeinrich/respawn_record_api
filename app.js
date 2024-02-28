@@ -5,9 +5,11 @@ const routes = require('./routes');
 
 const cors = require('cors');
 
-app.use('/api', routes);
+app.use(cors({
+  origin: 'http://localhost:5173'
+}));
 
-app.use(cors());
+app.use('/api', routes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
