@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
         const existingUserResult = await session.run(existingUserQuery, { email });
 
         if (existingUserResult.records.length > 0) {
-            res.status(409).json({ status: 'Account with that email already exists' });
+            res.status(200).json({ status: 'Failed', message: 'A user with that email already exists' });
             return;
         }
 
@@ -35,9 +35,9 @@ router.post('/', async (req, res) => {
         const result = await session.run(query, { email, username, password: hashedPassword }); // Use query parameterization
 
         if (result.summary.counters.containsUpdates()) {
-            res.status(200).json({ status: 'Success', account_details: {email: email, username: username, password: hashedPassword} });
+            res.status(200).json({ status: 'Success', account_details: {email: email, username: username, password: hashedPassword}, message: 'Account created succesfully' });
         } else {
-            res.status(401).json({ status: 'Failed to create user' });
+            res.status(401).json({ status: 'Failed', message: 'Unknown error'});
         }
     } catch (error) {
         console.error('Error:', error);
