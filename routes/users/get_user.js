@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const routePath = "/users/login";
+const routePath = "/users/get_user";
+
 
 const bcrypt = require('bcrypt')
 const { neo4jDriver } = require('../../util/neo4jdriver');
@@ -21,7 +22,7 @@ router.post('/', async (req, res) => {
         const result = await session.run(query, { email });
 
         if (result.records.length === 0) {
-            res.status(200).json({ status: 'Failed', message: 'User not found' });
+            res.status(200).json({ status: 'Failed', data: {} });
             return;
         }
 
@@ -29,7 +30,7 @@ router.post('/', async (req, res) => {
         const hashedPassword = node.properties.password;
 
         if (await bcrypt.compare(password, hashedPassword)) {
-            res.status(200).json({ status: 'Success', message: 'Succesfully logged in' });
+            res.status(200).json({ status: 'Success', data: node.properties });
         } else {
             res.status(200).json({ status: 'Failed', message: 'The username or password was incorrect' });
         }
