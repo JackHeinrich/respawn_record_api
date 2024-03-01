@@ -1,15 +1,23 @@
-require('dotenv').config();
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
 const app = express();
-const routes = require('./routes');
+const routes = require("./routes");
 
-const cors = require('cors');
+const cookieParser = require("cookie-parser");
 
-app.use(cors({
-  origin: 'http://localhost:5173'
-}));
+const cors = require("cors");
 
-app.use('/api', routes);
+const corsOptions = require("./util/corsOptions");
+
+const credentials = require("./util/credentials");
+
+app.use(cookieParser());
+
+app.use(credentials);
+
+app.use(cors(corsOptions));
+
+app.use("/api", routes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
