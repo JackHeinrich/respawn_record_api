@@ -15,7 +15,7 @@ router.post("/", async (req, res) => {
   const { email, password } = req.body;
 
   const query = `
-        MATCH (n:User { email: '${email}' })
+        MATCH (n:User { email: $email })
         RETURN n
     `;
 

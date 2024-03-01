@@ -6,6 +6,10 @@ const cookieParser = require("cookie-parser");
 
 const { neo4jDriver } = require("../../util/neo4jdriver");
 
+const jwt = require("jsonwebtoken");
+
+const { decodeAccessToken } = require("../../util/decodeAccessToken");
+
 router.use(cookieParser());
 router.use(express.json());
 
@@ -19,41 +23,46 @@ router.get("/", async (req, res) => {
   if (!cookies?.jwt)
     return res.status(200).json({ message: "There was no cookie" }); //No content
 
-  const refreshToken = cookies.jwt;
+  const accessToken = cookies.jwt;
 
-  //is refreshToken in DB?
-  const query = `
-        MATCH (n:User { refreshToken: $refreshToken })
-        RETURN n
-    `;
+  const decoded = await decodeAccessToken(accessToken);
+
+  if (!decoded) {
+    return res.status(403).json({ message: "Token could not be decoded" });
+  }
+
+  const decodedUser = decoded.username;
 
   try {
-    const result = await session.run(query, { refreshToken });
+    // Check if refreshToken in DB
+    const query = `
+        MATCH (n:User { username: $decodedUser })
+        SET n.refreshToken = ''
+        RETURN n
+      `;
 
-    const foundUser = result.records[0].get("n");
+    const result = await session.run(query, { decodedUser });
 
-    if (!foundUser) {
+    if (result.records.length === 0) {
       res.clearCookie("jwt", {
         httpOnly: true,
         sameSite: "None",
         secure: true,
       });
       return res
-        .status(200)
-        .json({ message: "No user with that cookie was found" });
+        .status(403)
+        .json({ message: "No user associated with this token" });
     }
 
-    //delete refreshToken in db
-    const tokenDeleteQuery = `
-        MATCH (n:User { refreshToken: $refreshToken })
-        SET n.refreshToken = ''
-    `;
+    const foundUser = result.records[0].get("n");
 
-    await session.run(tokenDeleteQuery, { refreshToken });
-
-    res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true }); // secure: true
+    res.clearCookie("jwt", {
+      httpOnly: true,
+      sameSite: "None",
+      secure: true,
+    });
     return res.status(200).json({
-      message: `Succesfully logged out of ${foundUser.properties.username}`,
+      message: `Successfully logged out of ${foundUser.properties.username}`,
     });
   } catch (error) {
     console.error("Error:", error);
