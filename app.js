@@ -3,9 +3,13 @@ const express = require("express");
 const app = express();
 const routes = require("./routes");
 
+const credentials = require("./util/credentials");
+
 const cors = require("cors");
 
 const corsOptions = require("./util/corsOptions");
+
+app.use(credentials);
 
 app.use(cors(corsOptions));
 

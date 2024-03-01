@@ -2,8 +2,11 @@ const express = require("express");
 const router = express.Router();
 const routePath = "/users/logout";
 
+const cookieParser = require("cookie-parser");
+
 const { neo4jDriver } = require("../../util/neo4jdriver");
 
+router.use(cookieParser());
 router.use(express.json());
 
 router.get("/", async (req, res) => {
@@ -36,7 +39,7 @@ router.get("/", async (req, res) => {
         secure: true,
       });
       return res
-        .Status(200)
+        .status(200)
         .json({ message: "No user with that cookie was found" });
     }
 
@@ -47,8 +50,6 @@ router.get("/", async (req, res) => {
     `;
 
     await session.run(tokenDeleteQuery, { refreshToken });
-
-    console.log(foundUser);
 
     res.clearCookie("jwt", { httpOnly: true, sameSite: "None", secure: true }); // secure: true
     return res.status(200).json({
