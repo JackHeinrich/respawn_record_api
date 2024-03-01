@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const router = express.Router();
 const routePath = "/users/refresh_token";
 
@@ -7,6 +8,7 @@ const { neo4jDriver } = require("../../util/neo4jdriver");
 const jwt = require("jsonwebtoken");
 
 router.use(express.json());
+router.use(cookieParser()); // Add this line to parse cookies
 
 router.get("/", async (req, res) => {
   const session = neo4jDriver.session();
