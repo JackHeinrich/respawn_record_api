@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 
-const decodeAccessToken = (token) => {
+const decodeToken = (token, key) => {
   return new Promise((resolve, reject) => {
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+    jwt.verify(token, key, (err, decoded) => {
       if (err) {
         reject(err);
       } else {
@@ -12,4 +12,4 @@ const decodeAccessToken = (token) => {
   });
 };
 
-module.exports = { decodeAccessToken };
+module.exports = { decodeToken };
