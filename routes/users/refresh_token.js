@@ -21,19 +21,19 @@ router.get("/", async (req, res) => {
     return res.status(401).json({ message: "No refresh token in cookies." });
   const accessToken = cookies.jwt;
 
-  const decoded = await decodeToken(
-    accessToken,
-    process.env.ACCESS_TOKEN_SECRET
-  );
+  try {
+    const decoded = await decodeToken(
+      accessToken,
+      process.env.ACCESS_TOKEN_SECRET
+    );
 
-  const user = decoded.username;
+    const user = decoded.username;
 
-  const query = `
+    const query = `
         MATCH (n:User { username: $user })
         RETURN n
     `;
 
-  try {
     const result = await session.run(query, { user });
 
     if (result.records.length === 0) {
@@ -66,12 +66,12 @@ router.get("/", async (req, res) => {
           secure: true,
           maxAge: 60 * 60 * 24 * 1000,
         });
-        res.status(200).json({ newAccessToken }); // Move this inside the jwt.verify callback
+        res.status(200).json({ newAccessToken });
       }
     );
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(403).json({ message: "Failed to decode access token" });
   } finally {
     session.close();
   }
