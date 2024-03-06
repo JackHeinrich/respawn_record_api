@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const routePath = "/steam/get_game";
+const routePath = "/steam/get_steam_game";
 
 const SteamStore = require("steam-store");
 

@@ -6,9 +6,7 @@ const cookieParser = require("cookie-parser");
 
 const { neo4jDriver } = require("../../util/neo4jdriver");
 
-const jwt = require("jsonwebtoken");
-
-const { decodeAccessToken } = require("../../util/decodeAccessToken");
+const { decodeToken } = require("../../util/decodeToken");
 
 router.use(cookieParser());
 router.use(express.json());
@@ -25,7 +23,10 @@ router.get("/", async (req, res) => {
 
   const accessToken = cookies.jwt;
 
-  const decoded = await decodeAccessToken(accessToken);
+  const decoded = await decodeToken(
+    accessToken,
+    process.env.ACCESS_TOKEN_SECRET
+  );
 
   if (!decoded) {
     return res.status(403).json({ message: "Token could not be decoded" });
